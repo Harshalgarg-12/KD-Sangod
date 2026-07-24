@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,8 @@ import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import { Store } from 'lucide-react';
 
-export default function LoginPage() {
+// 1. Rename main component to LoginForm
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -110,5 +111,18 @@ export default function LoginPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+// 2. Suspense Wrapper for Next.js Build
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center p-8">
+        <div className="animate-pulse text-slate-500">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
