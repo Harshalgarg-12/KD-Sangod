@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, Suspense } from 'react';
+import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,8 +12,8 @@ import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import { Store } from 'lucide-react';
 
-// 1. Rename main component to LoginForm
-function LoginForm() {
+// 1. Is component ka naam LoginContent kar diya hai
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -114,15 +115,18 @@ function LoginForm() {
   );
 }
 
-// 2. Suspense Wrapper for Next.js Build
+// 2. next/dynamic ka use karke hum SSR (Server-Side Rendering) ko disable kar rahe hain
+// Isse Vercel build time par isko render karne ki koshish nahi karega aur error nahi aayega!
+const LoginForm = dynamic(() => Promise.resolve(LoginContent), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center items-center p-8">
+      <div className="animate-pulse text-slate-500">Loading...</div>
+    </div>
+  ),
+});
+
+// 3. Main Page Export
 export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-pulse text-slate-500">Loading...</div>
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginForm />;
 }
