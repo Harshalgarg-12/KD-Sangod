@@ -10,14 +10,17 @@ import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
-import { Store } from 'lucide-react';
+import { Store, Eye, EyeOff } from 'lucide-react'; // <-- Eye aur EyeOff icons add kiye
 
-// 1. Is component ka naam LoginContent kar diya hai
+// 1. LoginContent Component
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
+  
+  // Show/Hide password ke liye state
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -94,14 +97,31 @@ function LoginContent() {
           {...register('phone')}
         />
 
-        <Input
-          label="Password"
-          type="password"
-          placeholder="••••••••"
-          required
-          error={errors.password?.message}
-          {...register('password')}
-        />
+        {/* Password field with Show/Hide toggle */}
+        <div className="relative">
+          <Input
+            label="Password"
+            type={showPassword ? "text" : "password"} // State ke hisaab se type change hoga
+            placeholder="••••••••"
+            required
+            error={errors.password?.message}
+            {...register('password')}
+          />
+          
+          {/* Eye Icon Button */}
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-[34px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
 
         <Button
           type="submit"
@@ -115,8 +135,7 @@ function LoginContent() {
   );
 }
 
-// 2. next/dynamic ka use karke hum SSR (Server-Side Rendering) ko disable kar rahe hain
-// Isse Vercel build time par isko render karne ki koshish nahi karega aur error nahi aayega!
+// 2. next/dynamic SSR disable karne ke liye
 const LoginForm = dynamic(() => Promise.resolve(LoginContent), {
   ssr: false,
   loading: () => (
